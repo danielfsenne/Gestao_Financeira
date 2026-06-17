@@ -1,0 +1,154 @@
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Metas de Economia</h2>
+      <p class="page-subtitle">Acompanhe seu progresso rumo aos objetivos financeiros</p>
+    </div>
+    <button mat-flat-button class="btn-add" (click)="openForm()">
+      <mat-icon>add</mat-icon>
+      Nova Meta
+    </button>
+  </div>
+
+  <!-- Form Card -->
+  <mat-card class="form-card" *ngIf="showForm">
+    <div class="form-card-header">
+      <div class="form-card-title-wrap">
+        <div class="form-card-icon" [class.edit-icon]="editingId">
+          <mat-icon>{{ editingId ? 'edit' : 'flag' }}</mat-icon>
+        </div>
+        <h3 class="form-card-title">{{ editingId ? 'Editar Meta' : 'Nova Meta' }}</h3>
+      </div>
+      <button mat-icon-button (click)="cancelForm()" class="close-btn">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Nome da meta</mat-label>
+        <input matInput formControlName="name" placeholder="Ex: Viagem para o Nordeste" />
+        <mat-error>Nome é obrigatório</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Valor alvo</mat-label>
+        <input matInput type="number" step="0.01" min="0.01" formControlName="targetAmount" />
+        <span matTextPrefix>R$&nbsp;</span>
+        <mat-error>Informe um valor maior que zero</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Já guardei</mat-label>
+        <input matInput type="number" step="0.01" min="0" formControlName="currentAmount" />
+        <span matTextPrefix>R$&nbsp;</span>
+        <mat-error>Valor inválido</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Prazo (opcional)</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="deadline" />
+        <mat-datepicker-toggle matIconSuffix [for]="picker" />
+        <mat-datepicker #picker />
+      </mat-form-field>
+
+      <div class="form-actions">
+        <button mat-stroked-button type="button" (click)="cancelForm()" class="btn-cancel">
+          Cancelar
+        </button>
+        <button mat-flat-button class="btn-save" type="submit" [disabled]="saving">
+          <mat-spinner diameter="18" *ngIf="saving" />
+          <span *ngIf="!saving">{{ editingId ? 'Salvar alterações' : 'Criar meta' }}</span>
+        </button>
+      </div>
+    </form>
+  </mat-card>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-center"><mat-spinner /></div>
+
+  <!-- Goals Grid -->
+  <div *ngIf="!loading" class="goals-grid">
+    <mat-card class="goal-card" *ngFor="let goal of goals">
+
+      <div class="goal-header">
+        <div class="goal-icon-wrap">
+          <mat-icon>{{ goal.progress >= 100 ? 'emoji_events' : 'savings' }}</mat-icon>
+        </div>
+        <div class="goal-title-wrap">
+          <h3 class="goal-name">{{ goal.name }}</h3>
+          <span class="goal-badge" [class.done]="goal.progress >= 100">
+            {{ goal.progress >= 100 ? 'Concluída!' : goal.progress.toFixed(0) + '% concluída' }}
+          </span>
+        </div>
+        <div class="goal-actions">
+          <button mat-icon-button class="action-btn edit" (click)="openForm(goal)" matTooltip="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button class="action-btn delete" (click)="delete(goal.id)" matTooltip="Excluir">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="goal-amounts">
+        <div class="amount-item">
+          <span class="amount-label">Guardado</span>
+          <span class="amount-value current">
+            {{ goal.currentAmount | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+          </span>
+        </div>
+        <div class="amount-divider">de</div>
+        <div class="amount-item">
+          <span class="amount-label">Meta</span>
+          <span class="amount-value target">
+            {{ goal.targetAmount | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+          </span>
+        </div>
+        <div class="amount-remaining" *ngIf="goal.progress < 100">
+          <span class="amount-label">Faltam</span>
+          <span class="amount-value remain">
+            {{ (goal.targetAmount - goal.currentAmount) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <mat-progress-bar
+          [mode]="'determinate'"
+          [value]="goal.progress"
+          [color]="progressColor(goal.progress)"
+          class="goal-progress-bar">
+        </mat-progress-bar>
+        <span class="progress-pct">{{ goal.progress.toFixed(1) }}%</span>
+      </div>
+
+      <div class="goal-footer" *ngIf="goal.deadline">
+        <mat-icon class="deadline-icon">calendar_today</mat-icon>
+        <ng-container *ngIf="daysLeft(goal.deadline) as days">
+          <span class="deadline-text" [class.overdue]="days < 0" [class.urgent]="days >= 0 && days <= 7">
+            <ng-container *ngIf="days < 0">Prazo encerrado há {{ -days }} dias</ng-container>
+            <ng-container *ngIf="days === 0">Prazo termina hoje</ng-container>
+            <ng-container *ngIf="days > 0">{{ days }} dias restantes</ng-container>
+          </span>
+        </ng-container>
+        <span class="deadline-date">· {{ goal.deadline | date:'dd/MM/yyyy' }}</span>
+      </div>
+
+    </mat-card>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="goals.length === 0">
+      <mat-icon>savings</mat-icon>
+      <h3>Nenhuma meta cadastrada</h3>
+      <p>Crie sua primeira meta de economia e acompanhe seu progresso.</p>
+      <button mat-flat-button class="btn-add" (click)="openForm()">
+        <mat-icon>add</mat-icon>
+        Criar primeira meta
+      </button>
+    </div>
+  </div>
+
+</div>

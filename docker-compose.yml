@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: gestao_db
+    environment:
+      POSTGRES_DB: gestao_financeira
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d gestao_financeira"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gestao_backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/gestao_financeira
+      DB_USERNAME: postgres
+      DB_PASSWORD: 123456
+      JWT_SECRET: 3cfa76ef14937c1c0ea519f8fc057a80fcd04a7e9d3425c7ec2fce3b90b28a5
+      JWT_EXPIRATION: 86400000
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

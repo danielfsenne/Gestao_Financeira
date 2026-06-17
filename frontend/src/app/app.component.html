@@ -1,0 +1,89 @@
+<ng-container *ngIf="auth.isLoggedIn(); else noNav">
+  <mat-sidenav-container class="sidenav-container">
+
+    <mat-sidenav
+      #sidenav
+      class="sidenav"
+      [mode]="isMobile ? 'over' : 'side'"
+      [opened]="!isMobile"
+      [fixedInViewport]="isMobile">
+
+      <div class="sidenav-logo">
+        <div class="logo-icon-wrap">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div>
+          <div class="logo-name">FinanceApp</div>
+          <div class="logo-tag">Gestão Financeira</div>
+        </div>
+      </div>
+
+      <div class="nav-section-label">MENU</div>
+
+      <nav class="sidenav-nav">
+        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active"
+           (click)="isMobile && sidenav.close()">
+          <span class="nav-icon-wrap"><mat-icon>dashboard</mat-icon></span>
+          <span class="nav-label">Dashboard</span>
+        </a>
+        <a class="nav-item" routerLink="/transactions" routerLinkActive="active"
+           (click)="isMobile && sidenav.close()">
+          <span class="nav-icon-wrap"><mat-icon>swap_horiz</mat-icon></span>
+          <span class="nav-label">Transações</span>
+        </a>
+        <a class="nav-item" routerLink="/reports" routerLinkActive="active"
+           (click)="isMobile && sidenav.close()">
+          <span class="nav-icon-wrap"><mat-icon>bar_chart</mat-icon></span>
+          <span class="nav-label">Relatórios</span>
+        </a>
+        <a class="nav-item" routerLink="/goals" routerLinkActive="active"
+           (click)="isMobile && sidenav.close()">
+          <span class="nav-icon-wrap"><mat-icon>savings</mat-icon></span>
+          <span class="nav-label">Metas</span>
+        </a>
+      </nav>
+
+      <div class="sidenav-footer">
+        <div class="user-row">
+          <div class="user-avatar">{{ userInitials }}</div>
+          <div class="user-details">
+            <span class="user-name">{{ auth.getUserName() }}</span>
+            <span class="user-role">Conta pessoal</span>
+          </div>
+        </div>
+        <div class="footer-btns">
+          <button mat-icon-button class="footer-btn"
+                  [matTooltip]="darkMode ? 'Modo claro' : 'Modo escuro'"
+                  (click)="toggleDark()">
+            <mat-icon>{{ darkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          </button>
+          <button mat-icon-button class="footer-btn" matTooltip="Sair" (click)="auth.logout()">
+            <mat-icon>logout</mat-icon>
+          </button>
+        </div>
+      </div>
+
+    </mat-sidenav>
+
+    <mat-sidenav-content class="main-content">
+      <!-- Mobile top bar -->
+      <mat-toolbar class="mobile-toolbar" *ngIf="isMobile">
+        <button mat-icon-button (click)="sidenav.toggle()" class="hamburger">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <span class="mobile-title">FinanceApp</span>
+        <span class="toolbar-spacer"></span>
+        <button mat-icon-button (click)="toggleDark()">
+          <mat-icon>{{ darkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+      </mat-toolbar>
+
+      <router-outlet />
+    </mat-sidenav-content>
+
+  </mat-sidenav-container>
+</ng-container>
+
+<ng-template #noNav>
+  <router-outlet />
+</ng-template>

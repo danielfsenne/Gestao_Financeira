@@ -1,0 +1,56 @@
+<div class="auth-container">
+  <div class="auth-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo">
+        <mat-icon>account_balance_wallet</mat-icon>
+      </div>
+      <h1>Criar conta</h1>
+      <p>Comece a organizar suas finanças hoje</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nome completo</mat-label>
+        <input matInput formControlName="name" placeholder="Seu nome" />
+        <mat-icon matSuffix>person</mat-icon>
+        <mat-error *ngIf="form.get('name')?.hasError('required')">Nome obrigatório</mat-error>
+        <mat-error *ngIf="form.get('name')?.hasError('minlength')">Mínimo 2 caracteres</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" placeholder="seu@email.com" />
+        <mat-icon matSuffix>email</mat-icon>
+        <mat-error *ngIf="form.get('email')?.hasError('required')">Email obrigatório</mat-error>
+        <mat-error *ngIf="form.get('email')?.hasError('email')">Email inválido</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Senha</mat-label>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" />
+        <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error *ngIf="form.get('password')?.hasError('required')">Senha obrigatória</mat-error>
+        <mat-error *ngIf="form.get('password')?.hasError('minlength')">Mínimo 6 caracteres</mat-error>
+      </mat-form-field>
+
+      <div class="error-msg" *ngIf="error">
+        <mat-icon>error_outline</mat-icon> {{ error }}
+      </div>
+
+      <button mat-flat-button class="submit-btn full-width" type="submit" [disabled]="loading">
+        <mat-spinner diameter="20" *ngIf="loading" />
+        <span *ngIf="!loading">Criar minha conta</span>
+      </button>
+    </form>
+
+    <p class="auth-footer">Já tem conta? <a routerLink="/login">Entrar</a></p>
+  </div>
+</div>

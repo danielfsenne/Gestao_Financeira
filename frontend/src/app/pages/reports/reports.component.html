@@ -1,0 +1,85 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Relatórios</h2>
+      <p class="page-subtitle">Análise visual das suas finanças</p>
+    </div>
+    <button mat-flat-button class="btn-export"
+            (click)="exportPdf()"
+            [disabled]="loading || exporting"
+            matTooltip="Baixar relatório em PDF">
+      <mat-icon>{{ exporting ? 'hourglass_empty' : 'picture_as_pdf' }}</mat-icon>
+      {{ exporting ? 'Gerando...' : 'Exportar PDF' }}
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-center"><mat-spinner /></div>
+
+  <ng-container *ngIf="!loading">
+    <!-- Summary Row -->
+    <div class="summary-row">
+      <div class="mini-stat green">
+        <div class="mini-stat-icon">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div class="mini-stat-body">
+          <span class="mini-label">Total de Receitas</span>
+          <span class="mini-value">{{ totalIncome | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        </div>
+      </div>
+
+      <div class="mini-stat red">
+        <div class="mini-stat-icon">
+          <mat-icon>trending_down</mat-icon>
+        </div>
+        <div class="mini-stat-body">
+          <span class="mini-label">Total de Despesas</span>
+          <span class="mini-value">{{ totalExpense | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        </div>
+      </div>
+
+      <div class="mini-stat" [class.purple]="totalIncome >= totalExpense" [class.amber]="totalIncome < totalExpense">
+        <div class="mini-stat-icon">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div class="mini-stat-body">
+          <span class="mini-label">Saldo Líquido</span>
+          <span class="mini-value">{{ (totalIncome - totalExpense) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="charts-grid">
+      <mat-card class="chart-card">
+        <div class="chart-header">
+          <div class="chart-icon-wrap bar">
+            <mat-icon>bar_chart</mat-icon>
+          </div>
+          <div>
+            <h3 class="chart-title">Receitas × Despesas</h3>
+            <p class="chart-subtitle">Comparação mensal</p>
+          </div>
+        </div>
+        <div class="chart-content">
+          <canvas #barChart></canvas>
+        </div>
+      </mat-card>
+
+      <mat-card class="chart-card">
+        <div class="chart-header">
+          <div class="chart-icon-wrap pie">
+            <mat-icon>pie_chart</mat-icon>
+          </div>
+          <div>
+            <h3 class="chart-title">Despesas por Categoria</h3>
+            <p class="chart-subtitle">Distribuição do período</p>
+          </div>
+        </div>
+        <div class="chart-content">
+          <canvas #categoryChart></canvas>
+        </div>
+      </mat-card>
+    </div>
+  </ng-container>
+</div>

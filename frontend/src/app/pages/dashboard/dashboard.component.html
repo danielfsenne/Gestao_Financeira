@@ -1,0 +1,79 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Dashboard</h2>
+      <p class="page-subtitle">Resumo financeiro do período</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-center">
+    <mat-spinner color="accent" />
+  </div>
+
+  <ng-container *ngIf="!loading && data">
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="stat-card income-card">
+        <div class="stat-icon-wrap">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div class="stat-body">
+          <span class="stat-label">Total de Receitas</span>
+          <span class="stat-value">{{ data.income | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        </div>
+        <div class="stat-bg-icon"><mat-icon>trending_up</mat-icon></div>
+      </div>
+
+      <div class="stat-card expense-card">
+        <div class="stat-icon-wrap">
+          <mat-icon>trending_down</mat-icon>
+        </div>
+        <div class="stat-body">
+          <span class="stat-label">Total de Despesas</span>
+          <span class="stat-value">{{ data.expense | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        </div>
+        <div class="stat-bg-icon"><mat-icon>trending_down</mat-icon></div>
+      </div>
+
+      <div class="stat-card" [class.balance-positive]="data.balance >= 0" [class.balance-negative]="data.balance < 0">
+        <div class="stat-icon-wrap">
+          <mat-icon>account_balance</mat-icon>
+        </div>
+        <div class="stat-body">
+          <span class="stat-label">Saldo Atual</span>
+          <span class="stat-value">{{ data.balance | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        </div>
+        <div class="stat-bg-icon"><mat-icon>account_balance</mat-icon></div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-row" *ngIf="hasExpenses">
+      <mat-card class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h3 class="chart-title">Gastos por Categoria</h3>
+            <p class="chart-subtitle">Distribuição das despesas</p>
+          </div>
+        </div>
+        <div class="chart-body">
+          <div class="chart-canvas-wrap">
+            <canvas #pieChart></canvas>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item" *ngFor="let item of categoryList; let i = index">
+              <span class="legend-dot" [style.background]="chartColors[i % chartColors.length]"></span>
+              <span class="legend-name">{{ item.label }}</span>
+              <span class="legend-value">{{ item.value | currency:'BRL':'symbol':'1.0-0':'pt-BR' }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </ng-container>
+
+  <div *ngIf="!loading && !data" class="empty-state">
+    <mat-icon>bar_chart</mat-icon>
+    <p>Nenhuma transação encontrada. Adicione receitas e despesas para ver seu resumo financeiro.</p>
+  </div>
+</div>
